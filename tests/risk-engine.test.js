@@ -1,0 +1,13 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { calculateVendorRisk, bandFor, formatPercent } from "../src/risk-engine.js";
+const controls=[{id:"A",weight:3,mandatory:true},{id:"B",weight:2,mandatory:false},{id:"C",weight:1,mandatory:false}];
+const vendor=(responses,likelihood=4,impact=4)=>({likelihood,impact,responses});
+test("calculates inherent risk and a complete low-residual result",()=>{const r=calculateVendorRisk(vendor({A:{status:"implemented",evidence:"verified"},B:{status:"implemented",evidence:"verified"},C:{status:"implemented",evidence:"verified"}}),controls);assert.equal(r.inherentScore,16);assert.equal(r.inherentBand,"High");assert.equal(r.residualScore,1);});
+test("withholds residual risk below 80 percent coverage",()=>{const r=calculateVendorRisk(vendor({A:{status:"implemented",evidence:"verified"},B:{status:"not_assessed",evidence:"unverified"},C:{status:"not_assessed",evidence:"unverified"}}),controls);assert.equal(r.coverage,.5);assert.equal(r.assessmentComplete,false);assert.equal(r.residualScore,null);});
+test("withholds residual risk when a mandatory control is unanswered",()=>{const r=calculateVendorRisk(vendor({A:{status:"not_assessed",evidence:"unverified"},B:{status:"implemented",evidence:"verified"},C:{status:"implemented",evidence:"verified"}}),controls);assert.equal(r.criticalUnresolved,true);assert.equal(r.residualScore,null);});
+test("not applicable controls are excluded from coverage denominator",()=>{const r=calculateVendorRisk(vendor({A:{status:"implemented",evidence:"verified"},B:{status:"implemented",evidence:"verified"},C:{status:"not_applicable",evidence:"unverified"}}),controls);assert.equal(r.coverage,1);assert.equal(r.assessmentComplete,true);});
+test("unverified evidence reduces illustrative effectiveness",()=>{const r=calculateVendorRisk(vendor({A:{status:"implemented",evidence:"unverified"},B:{status:"implemented",evidence:"verified"},C:{status:"implemented",evidence:"verified"}}),controls);assert.ok(r.effectiveness<1);assert.equal(r.assessmentComplete,true);});
+test("not implemented contributes zero effectiveness",()=>{const r=calculateVendorRisk(vendor({A:{status:"not_implemented",evidence:"verified"},B:{status:"implemented",evidence:"verified"},C:{status:"implemented",evidence:"verified"}}),controls);assert.ok(r.effectiveness<1);});
+test("risk band boundaries are correct",()=>{assert.equal(bandFor(1),"Low");assert.equal(bandFor(5),"Moderate");assert.equal(bandFor(10),"High");assert.equal(bandFor(17),"Critical");assert.equal(bandFor(null),"Unrated");});
+test("percentage formatting is stable",()=>{assert.equal(formatPercent(.825),"83%");assert.equal(formatPercent(.825,1),"82.5%");});
