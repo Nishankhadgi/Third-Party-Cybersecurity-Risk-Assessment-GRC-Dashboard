@@ -2,8 +2,9 @@
 
 A browser-based portfolio prototype demonstrating a third-party cybersecurity risk assessment workflow for Technology Risk, GRC, IT Audit, and Vendor Risk Analyst roles.
 
+**Live dashboard:** [Open the production application](https://third-party-cybersecurity-risk-assessment-nishankhadgi091-1982.vercel.app/)  
 **Repository:** https://github.com/Nishankhadgi/Third-Party-Cybersecurity-Risk-Assessment-GRC-Dashboard  
-**Hosting:** Vercel static deployment (deployment URL to be linked after confirmation).
+**Hosting:** Vercel · Vite production build · Static output in `dist/`
 
 > **Important:** This project uses fictional vendor records and illustrative scoring assumptions. It is not an enterprise GRC platform, an audit opinion, a certification assessment, or an official NIST scoring implementation. Do not enter real or confidential vendor data.
 
@@ -63,6 +64,16 @@ npm test
 npm run build
 npm run preview
 ~~~
+
+## Deploy on Vercel
+
+The production dashboard is already deployed at the live URL above. The repository includes `vercel.json` with the Vite build configuration:
+
+- Install command: `npm install`
+- Build command: `npm run build`
+- Output directory: `dist`
+
+**Deployment workflow note:** the current production deployment was uploaded directly to Vercel and is not yet linked to this GitHub repository for automatic push deployments. To enable automatic deployments, open the Vercel project, go to **Settings → Git**, and connect this repository with `main` as the production branch.
 
 ## Illustrative scoring approach
 
